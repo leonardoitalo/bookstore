@@ -1,28 +1,32 @@
-from factory import Faker, Iterator, LazyAttribute
-from product.models import Product, Category
 import factory
 
+from product.models import Category, Product
+
+
 class CategoryFactory(factory.django.DjangoModelFactory):
-    title = Faker("pystr")
-    slug = Faker("pystr")
-    description = Faker("pystr")
-    active = Iterator([True, False])
+    title = factory.Faker("pystr")
+    slug = factory.Faker("pystr")
+    description = factory.Faker("pystr")
+    active = factory.Iterator([True, False])
 
     class Meta:
         model = Category
 
 
 class ProductFactory(factory.django.DjangoModelFactory):
-    price = Faker("pyint")
-    category = LazyAttribute(CategoryFactory)
-    title = Faker("pystr")
+    price = factory.Faker("pyint")
+    category = factory.LazyAttribute(CategoryFactory)
+    title = factory.Faker("pystr")
 
-    @factory.postGeneration
+
+    @factory.post_generation
     def category(self, create, extracted, **kwargs):
         if not create:
             return
-        
+
         if extracted:
-            for category in extracted:
-                self.category.add(category)
-                
+            for categories in extracted:
+                self.category.add(categories)
+
+    class Meta:
+        model = Product
