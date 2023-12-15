@@ -24,8 +24,4 @@ services:
       - db
 
 volumes:
-  postgres_data:Iahdhshbcbehddch21031276
-              gifihjfji     configs:
-              libd
-              env_filekfi2546
-              
+  postgres_data:
