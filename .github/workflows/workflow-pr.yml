@@ -1,5 +1,9 @@
-name: Python Pull Request Workflow
-on: [pull_request]
+name: Python Workflow
+
+on:
+  push:
+    branches:
+      - '*'
 
 jobs:
   qa:
