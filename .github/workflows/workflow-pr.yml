@@ -1,9 +1,6 @@
 name: Python Workflow
 
-on:
-  push:
-    branches:
-      - '*'
+on: [push]
 
 jobs:
   qa:
