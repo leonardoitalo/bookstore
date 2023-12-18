@@ -29,13 +29,13 @@ jobs:
       - name: Install dependencies
         run: |
           virtualenv -m venv venv
-          venv/Scripts/Activate
+          source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Test
         run: |
-          ./venv/bin/python manage.py test
+          source venv/bin/activate && ./venv/bin/python manage.py test
 
       - name: Wemake Python Styleguide
         uses: wemake-services/wemake-python-styleguide@0.16.0
