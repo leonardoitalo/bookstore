@@ -32,15 +32,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Activate Virtual Environment
-        run: |
-          . ./venv/bin/activate
-          which python
-          pip --version
-          python --version
-
       - name: Test
-        run: ./venv/bin/python manage.py test
+        run: |
+          ./venv/bin/python manage.py test
 
       - name: Wemake Python Styleguide
         uses: wemake-services/wemake-python-styleguide@0.16.0
@@ -48,5 +42,3 @@ jobs:
           reporter: 'github-pr-review'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-
