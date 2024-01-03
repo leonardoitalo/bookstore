@@ -1,0 +1,46 @@
+name: Python Workflow
+
+on: [push]
+
+jobs:
+  qa:
+    name: Quality check
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Cache venv
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+            ./venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          pip install virtualenv
+          virtualenv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test
+        run: |
+          source venv/bin/activate && ./venv/bin/python manage.py test
+
+      - name: Wemake Python Styleguide
+        uses: wemake-services/wemake-python-styleguide@0.16.0
+        with:
+          reporter: 'github-pr-review'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

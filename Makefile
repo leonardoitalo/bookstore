@@ -24,9 +24,7 @@ PYENV_VERSION_DIR ?= $(shell pyenv root)/versions/$(PYTHON_VERSION)
 endif
 PIP ?= pip3
 
-POETRY_OPTS ?=
-POETRY ?= poetry $(POETRY_OPTS)
-RUN_PYPKG_BIN = $(POETRY) run
+RUN_PYPKG_BIN = python
 
 COLOR_ORANGE = \033[33m
 COLOR_RESET = \033[0m
@@ -45,7 +43,7 @@ version-python: ## Echos the version of Python in use
 
 .PHONY: test
 test: ## Runs tests
-	$(RUN_PYPKG_BIN) pytest \
+	$(RUN_PYPKG_BIN) -m pytest \
 		$(PYTEST_OPTIONS) \
 		tests/*.py
 
@@ -53,15 +51,15 @@ test: ## Runs tests
 
 .PHONY: build
 build: ## Runs a build
-	$(POETRY) build
+	python setup.py sdist bdist_wheel
 
 .PHONY: publish
 publish: ## Publish a build to the configured repo
-	$(POETRY) publish $(POETRY_PUBLISH_OPTIONS_SET_BY_CI_ENV)
+	twine upload dist/*
 
 .PHONY: deps-py-update
-deps-py-update: pyproject.toml ## Update Poetry deps, e.g. after adding a new one manually
-	$(POETRY) update
+deps-py-update: requirements.txt ## Update pip deps, e.g. after adding a new one manually
+	$(PIP) install -r requirements.txt
 
 ##@ Setup
 # dynamic-ish detection of Python installation directory with pyenv
@@ -86,8 +84,7 @@ deps-py: $(PYTHON_VERSION_FILE) ## Installs Python development and runtime depen
 		pip
 	$(PIP) install --upgrade \
                                      		--index-url $(PYPI_PROXY) \
-                                     		poetry
-	$(POETRY) install
+                                     		-r requirements.txt
 
 ##@ Code Quality
 
@@ -99,27 +96,27 @@ check-py: check-py-flake8 check-py-black check-py-mypy ## Checks only Python fil
 
 .PHONY: check-py-flake8
 check-py-flake8: ## Runs flake8 linter
-	$(RUN_PYPKG_BIN) flake8 .
+	$(RUN_PYPKG_BIN) -m flake8 .
 
 .PHONY: check-py-black
 check-py-black: ## Runs black in check mode (no changes)
-	$(RUN_PYPKG_BIN) black --check --line-length 118 --fast .
+	$(RUN_PYPKG_BIN) -m black --check --line-length 118 --fast .
 
 .PHONY: check-py-mypy
 check-py-mypy: ## Runs mypy
-	$(RUN_PYPKG_BIN) mypy $(MYPY_OPTS) $(LIBRARY_DIRS)
+	$(RUN_PYPKG_BIN) -m mypy $(MYPY_OPTS) $(LIBRARY_DIRS)
 
 .PHONY: format-py
 format-py: ## Runs black, makes changes where necessary
-	$(RUN_PYPKG_BIN) black .
+	$(RUN_PYPKG_BIN) -m black .
 
 .PHONY: format-autopep8
 format-autopep8:
-	$(RUN_PYPKG_BIN) autopep8 --in-place --recursive .
+	$(RUN_PYPKG_BIN) -m autopep8 --in-place --recursive .
 
 .PHONY: format-isort
 format-isort:
-	$(RUN_PYPKG_BIN) isort --recursive .
+	$(RUN_PYPKG_BIN) -m isort --recursive .
 
 .PHONY: migrate
 migrate:
@@ -127,4 +124,4 @@ migrate:
 
 .PHONY: seed
 seed:
-	poetry run python manage.py seed
+	python manage.py seed
